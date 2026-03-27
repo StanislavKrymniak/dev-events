@@ -114,13 +114,16 @@ eventSchema.index({ slug: 1 });
 eventSchema.pre('save', function (next) {
   // Generate slug from title if title is modified or document is new
   if (this.isModified('title')) {
-    this.slug = this.title
+    const baseSlug = this.title
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '') // Remove special characters
       .replace(/\s+/g, '-') // Replace spaces with hyphens
       .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
       .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+    
+    // Add timestamp suffix to ensure uniqueness
+    this.slug = baseSlug ? `${baseSlug}-${Date.now()}` : `event-${Date.now()}`;
   }
 
   // Normalize date to ISO format (YYYY-MM-DD)
