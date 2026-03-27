@@ -114,23 +114,37 @@ eventSchema.index({ slug: 1 });
 eventSchema.pre('save', function (next) {
   // Generate slug from title if title is modified or document is new
   if (this.isModified('title')) {
-    this.slug = this.title
+    const baseSlug = this.title
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '') // Remove special characters
       .replace(/\s+/g, '-') // Replace spaces with hyphens
       .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
       .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+    
+    // Add timestamp suffix to ensure uniqueness
+    this.slug = baseSlug ? `${baseSlug}-${Date.now()}` : `event-${Date.now()}`;
   }
 
   // Normalize date to ISO format (YYYY-MM-DD)
   if (this.isModified('date')) {
     try {
-      const parsedDate = new Date(this.date);
-      if (isNaN(parsedDate.getTime())) {
+      // Check if already in YYYY-MM-DD format
+      const isoDateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+      const match = this.date.trim().match(isoDateRegex);
+      if (match) {
+        const [, year, month, day] = match;
+        // Validate date components
+        const y = parseInt(year, 10);
+        const m = parseInt(month, 10);
+        const d = parseInt(day, 10);
+        if (m < 1 || m > 12 || d < 1 || d > 31) {
+          return next(new Error('Invalid date format. Use YYYY-MM-DD.'));
+        }
+        this.date = `${year}-${month}-${day}`;
+      } else {
         return next(new Error('Invalid date format. Use YYYY-MM-DD or a valid date string.'));
       }
-      this.date = parsedDate.toISOString().split('T')[0];
     } catch (error) {
       return next(new Error('Date parsing failed'));
     }
