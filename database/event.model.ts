@@ -28,10 +28,10 @@ const eventSchema = new Schema<IEvent>(
       trim: true,
     },
     slug: {
-      type: String,
-      unique: true,
-      lowercase: true,
-      trim: true,
+        type: String,
+        unique: true,
+        lowercase: true,
+        trim: true,
     },
     description: {
       type: String,
