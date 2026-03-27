@@ -11,7 +11,7 @@ interface  Props {
 }
 
 
-const EventCard = ({title,image,slug,location,date,time} :Props) => {
+const EventCard = ({title,image,location,date,time} :Props) => {
     return (
         <Link href="/events" id="event-card">
             <Image src={image} alt={title} width={410} height={300} className="poster"/>

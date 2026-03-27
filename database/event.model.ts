@@ -1,4 +1,4 @@
-import mongoose, { Schema, Model, Document } from 'mongoose';
+import mongoose, { Schema, Model, Document, HydratedDocument } from 'mongoose';
 
 // TypeScript interface for Event document
 export interface IEvent extends Document {
@@ -111,7 +111,7 @@ eventSchema.index({ slug: 1 });
  * Pre-save hook to generate slug, normalize date, and validate time
  * Only regenerates slug if title has changed
  */
-eventSchema.pre('save', function (next) {
+eventSchema.pre('save', async function (this: HydratedDocument<IEvent>) {
   // Generate slug from title if title is modified or document is new
   if (this.isModified('title')) {
     const baseSlug = this.title
@@ -128,25 +128,20 @@ eventSchema.pre('save', function (next) {
 
   // Normalize date to ISO format (YYYY-MM-DD)
   if (this.isModified('date')) {
-    try {
-      // Check if already in YYYY-MM-DD format
-      const isoDateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
-      const match = this.date.trim().match(isoDateRegex);
-      if (match) {
-        const [, year, month, day] = match;
-        // Validate date components
-        const y = parseInt(year, 10);
-        const m = parseInt(month, 10);
-        const d = parseInt(day, 10);
-        if (m < 1 || m > 12 || d < 1 || d > 31) {
-          return next(new Error('Invalid date format. Use YYYY-MM-DD.'));
-        }
-        this.date = `${year}-${month}-${day}`;
-      } else {
-        return next(new Error('Invalid date format. Use YYYY-MM-DD or a valid date string.'));
+    // Check if already in YYYY-MM-DD format
+    const isoDateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+    const match = this.date.trim().match(isoDateRegex);
+    if (match) {
+      const [, year, month, day] = match;
+      // Validate date components
+      const m = parseInt(month, 10);
+      const d = parseInt(day, 10);
+      if (m < 1 || m > 12 || d < 1 || d > 31) {
+        throw new Error('Invalid date format. Use YYYY-MM-DD.');
       }
-    } catch (error) {
-      return next(new Error('Date parsing failed'));
+      this.date = `${year}-${month}-${day}`;
+    } else {
+      throw new Error('Invalid date format. Use YYYY-MM-DD or a valid date string.');
     }
   }
 
@@ -155,13 +150,11 @@ eventSchema.pre('save', function (next) {
     const timeRegex = /^([01]?\d|2[0-3]):([0-5]\d)$/;
     const match = this.time.trim().match(timeRegex);
     if (!match) {
-      return next(new Error('Invalid time format. Use HH:MM (24-hour format).'));
+      throw new Error('Invalid time format. Use HH:MM (24-hour format).');
     }
     // Zero-pad hours for consistent HH:MM format
     this.time = `${match[1].padStart(2, '0')}:${match[2]}`;
   }
-
-  next();
 });
 
 // Prevent model recompilation in development (Next.js hot reload)
