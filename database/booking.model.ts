@@ -45,26 +45,31 @@ bookingSchema.index({ eventId: 1, email: 1 },{unique: true, name: 'uniq-event-em
  * Pre-save hook to verify that the referenced event exists
  * Prevents orphaned bookings by validating event reference
  */
-bookingSchema.pre('save', async function (next) {
+bookingSchema.pre('save', async function () {
   // Only validate eventId if it's new or modified
   if (this.isNew || this.isModified('eventId')) {
     try {
       // Dynamically import Event model to avoid circular dependencies
       const Event = mongoose.models.Event || (await import('./event.model')).default;
-      
+
       const eventExists = await Event.exists({ _id: this.eventId });
-      
+
       if (!eventExists) {
-        return next(new Error('Event not found. Cannot create booking for non-existent event.'));
+        // Just throw the error instead of using next()
+        throw new Error('Event not found. Cannot create booking for non-existent event.');
       }
     } catch (error) {
-      return next(new Error('Error validating event reference'));
+      // If we threw the "Event not found" error, re-throw it so it doesn't get masked
+      if (error instanceof Error && error.message.includes('Event not found')) {
+        throw error;
+      }
+      // Otherwise, it's a database connection/import error
+      throw new Error('Error validating event reference');
     }
   }
 
-  next();
+  // No need to call next() at the end of an async hook!
 });
-
 // Prevent model recompilation in development (Next.js hot reload)
 const Booking: Model<IBooking> = mongoose.models.Booking || mongoose.model<IBooking>('Booking', bookingSchema);
 
