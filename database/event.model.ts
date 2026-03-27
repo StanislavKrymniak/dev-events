@@ -129,11 +129,22 @@ eventSchema.pre('save', function (next) {
   // Normalize date to ISO format (YYYY-MM-DD)
   if (this.isModified('date')) {
     try {
-      const parsedDate = new Date(this.date);
-      if (isNaN(parsedDate.getTime())) {
+      // Check if already in YYYY-MM-DD format
+      const isoDateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+      const match = this.date.trim().match(isoDateRegex);
+      if (match) {
+        const [, year, month, day] = match;
+        // Validate date components
+        const y = parseInt(year, 10);
+        const m = parseInt(month, 10);
+        const d = parseInt(day, 10);
+        if (m < 1 || m > 12 || d < 1 || d > 31) {
+          return next(new Error('Invalid date format. Use YYYY-MM-DD.'));
+        }
+        this.date = `${year}-${month}-${day}`;
+      } else {
         return next(new Error('Invalid date format. Use YYYY-MM-DD or a valid date string.'));
       }
-      this.date = parsedDate.toISOString().split('T')[0];
     } catch (error) {
       return next(new Error('Date parsing failed'));
     }
