@@ -139,10 +139,12 @@ eventSchema.pre('save', function (next) {
   // Normalize time format to HH:MM (24-hour format)
   if (this.isModified('time')) {
     const timeRegex = /^([01]?\d|2[0-3]):([0-5]\d)$/;
-    if (!timeRegex.test(this.time.trim())) {
+    const match = this.time.trim().match(timeRegex);
+    if (!match) {
       return next(new Error('Invalid time format. Use HH:MM (24-hour format).'));
     }
-    this.time = this.time.trim();
+    // Zero-pad hours for consistent HH:MM format
+    this.time = `${match[1].padStart(2, '0')}:${match[2]}`;
   }
 
   next();
