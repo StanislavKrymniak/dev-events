@@ -128,21 +128,25 @@ eventSchema.pre('save', async function (this: HydratedDocument<IEvent>) {
 
   // Normalize date to ISO format (YYYY-MM-DD)
   if (this.isModified('date')) {
-    // Check if already in YYYY-MM-DD format
-    const isoDateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
-    const match = this.date.trim().match(isoDateRegex);
-    if (match) {
+      const rawDate = this.date.trim();
+      const isoDateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+      const match = rawDate.match(isoDateRegex);
+      if (!match) {
+          throw new Error('Invalid date format. Use YYYY-MM-DD.');
+      }
       const [, year, month, day] = match;
-      // Validate date components
-      const m = parseInt(month, 10);
-      const d = parseInt(day, 10);
-      if (m < 1 || m > 12 || d < 1 || d > 31) {
-        throw new Error('Invalid date format. Use YYYY-MM-DD.');
+      const normalizedDate = new Date(
+          Date.UTC(Number(year), Number(month) - 1, Number(day))
+      );
+      if (
+          Number.isNaN(normalizedDate.getTime()) ||
+          normalizedDate.getUTCFullYear() !== Number(year) ||
+          normalizedDate.getUTCMonth() !== Number(month) - 1 ||
+          normalizedDate.getUTCDate() !== Number(day)
+      ) {
+          throw new Error('Invalid date format. Use YYYY-MM-DD.');
       }
       this.date = `${year}-${month}-${day}`;
-    } else {
-      throw new Error('Invalid date format. Use YYYY-MM-DD or a valid date string.');
-    }
   }
 
   // Normalize time format to HH:MM (24-hour format)
