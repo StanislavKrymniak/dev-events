@@ -54,7 +54,8 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
         }
     } catch (error) {
         console.error('Error fetching event:', error)
-        return notFound()
+        throw error
+    }
     }
 
     const bookings = 10

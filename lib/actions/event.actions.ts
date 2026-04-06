@@ -6,12 +6,16 @@ import connectDB from "@/lib/mongodb";
 export const getSimilarEventsBySlug = async (slug: string) => {
     try {
         await connectDB();
-        const event = await Event.findOne({slug})
-        if (event) {
-            return await Event.find({_id: { $ne: event._id}, tags: {$in: event.tags}}).lean()
-        }
-    } catch {
-        return []
+        const event = await Event.findOne({ slug }).lean();
+        if (!event) return [];
+
+        return await Event.find({
+            _id: { $ne: event._id },
+            tags: { $in: event.tags },
+        }).lean();
+    } catch (error) {
+        console.error("Failed to fetch similar events", error);
+        return [];
     }
 }
 

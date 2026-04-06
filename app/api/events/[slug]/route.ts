@@ -96,7 +96,7 @@ export async function GET(
       return NextResponse.json(
         { 
           message: 'Failed to fetch event',
-          error: error.message 
+          error: 'Internal server error' 
         },
         { status: 500 }
       );
