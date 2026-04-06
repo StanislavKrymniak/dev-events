@@ -78,10 +78,10 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
                      <section className="flex-col-gap-2">
                          <h2>Event Details</h2>
                          <EventDetailItem  icon="/icons/calendar.svg" alt="calendar" label={event.date}/>
-                         <EventDetailItem  icon="/icons/clock.svg" alt="calendar" label={event.time}/>
-                         <EventDetailItem  icon="/icons/pin.svg" alt="calendar" label={event.location}/>
-                         <EventDetailItem  icon="/icons/mode.svg" alt="calendar" label={event.mode}/>
-                         <EventDetailItem  icon="/icons/audience.svg" alt="calendar" label={event.audience}/>
+                         <EventDetailItem  icon="/icons/clock.svg" alt="clock" label={event.time}/>
+                         <EventDetailItem  icon="/icons/pin.svg" alt="pin" label={event.location}/>
+                         <EventDetailItem  icon="/icons/mode.svg" alt="mode" label={event.mode}/>
+                         <EventDetailItem  icon="/icons/audience.svg" alt="audience" label={event.audience}/>
                      </section>
                      <EventAgenda agendaItems={event.agenda} />
                      <section className="flex-col-gap-2">
@@ -101,7 +101,7 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
                         ): (
                             <p className="text-sm">Be the first to book your spot!</p>
                         )}
-                        <BookEvent />
+                        <BookEvent eventId={event._id} />
                     </div>
                 </aside>
             </div>
