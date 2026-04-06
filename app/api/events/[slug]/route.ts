@@ -100,7 +100,6 @@ export async function GET(
         },
         { status: 500 }
       );
-      );
     }
 
     // Fallback for unknown errors
