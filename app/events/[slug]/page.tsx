@@ -1,10 +1,13 @@
 import {notFound} from "next/navigation";
 import Image from "next/image";
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 import BookEvent from "@/components/BookEvent";
 import {getSimilarEventsBySlug} from "@/lib/actions/event.actions";
 import {IEvent} from "@/database/event.model";
 import EventCard from "@/components/EventCard";
+
+//Last change
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 const EventDetailItem = ({icon, alt, label}: {icon: string; alt: string; label: string}) => (
     <div className="flex-row-gap-2 items-center">
         <Image src={icon} alt={alt} width={17} height={17}/>
@@ -56,7 +59,6 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
         console.error('Error fetching event:', error)
         throw error
     }
-    }
 
     const bookings = 10
 
@@ -79,10 +81,10 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
                      <section className="flex-col-gap-2">
                          <h2>Event Details</h2>
                          <EventDetailItem  icon="/icons/calendar.svg" alt="calendar" label={event.date}/>
-                         <EventDetailItem  icon="/icons/clock.svg" alt="calendar" label={event.time}/>
-                         <EventDetailItem  icon="/icons/pin.svg" alt="calendar" label={event.location}/>
-                         <EventDetailItem  icon="/icons/mode.svg" alt="calendar" label={event.mode}/>
-                         <EventDetailItem  icon="/icons/audience.svg" alt="calendar" label={event.audience}/>
+                         <EventDetailItem  icon="/icons/clock.svg" alt="clock" label={event.time}/>
+                         <EventDetailItem  icon="/icons/pin.svg" alt="pin" label={event.location}/>
+                         <EventDetailItem  icon="/icons/mode.svg" alt="mode" label={event.mode}/>
+                         <EventDetailItem  icon="/icons/audience.svg" alt="audience" label={event.audience}/>
                      </section>
                      <EventAgenda agendaItems={event.agenda} />
                      <section className="flex-col-gap-2">
@@ -102,7 +104,7 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
                         ): (
                             <p className="text-sm">Be the first to book your spot!</p>
                         )}
-                        <BookEvent />
+                        <BookEvent eventId={event._id} />
                     </div>
                 </aside>
             </div>

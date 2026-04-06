@@ -1,15 +1,37 @@
 'use client'
 import {useState} from "react";
+import {submitBooking} from "@/lib/actions/event.actions";
 
-
-const BookEvent = () => {
+const BookEvent = ({ eventId }: { eventId: string }) => {
     const [email, setEmail] = useState("");
     const [submitted, setSubmitted] = useState(false);
-    const handleSubmit = (e: React.FormEvent) => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setTimeout(()=> {
-            setSubmitted(true);
-        }, 1000)
+        
+        if (!email || !email.trim()) {
+            setError("Email is required.");
+            return;
+        }
+
+        setLoading(true);
+        setError("");
+
+        try {
+            const response = await submitBooking(eventId, email);
+            if (response.success) {
+                setSubmitted(true);
+            } else {
+                setError(response.error || "Something went wrong.");
+            }
+        } catch (err: unknown) {
+            console.error(err);
+            setError("An unexpected error occurred.");
+        } finally {
+            setLoading(false);
+        }
     }
     return (
         <div id="book-event">
@@ -25,9 +47,14 @@ const BookEvent = () => {
                             onChange={(e) => setEmail(e.target.value)}
                             id="email"
                             placeholder="Enter your email address"
+                            required
+                            disabled={loading}
                         />
                     </div>
-                    <button type="submit" className="button-submit">Submit</button>
+                    {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+                    <button type="submit" className="button-submit" disabled={loading}>
+                        {loading ? "Submitting..." : "Submit"}
+                    </button>
                 </form>
             )}
         </div>
