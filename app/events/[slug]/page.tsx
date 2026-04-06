@@ -5,6 +5,8 @@ import {getSimilarEventsBySlug} from "@/lib/actions/event.actions";
 import {IEvent} from "@/database/event.model";
 import EventCard from "@/components/EventCard";
 
+//Last change
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 const EventDetailItem = ({icon, alt, label}: {icon: string; alt: string; label: string}) => (
     <div className="flex-row-gap-2 items-center">
