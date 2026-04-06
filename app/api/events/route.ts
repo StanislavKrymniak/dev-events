@@ -18,9 +18,9 @@ export async function POST(req: NextRequest) {
         }
 
         // Check if event with same title already exists
-        const existingEvent = await Event.findOne({ 
-            title: { $regex: new RegExp(`^${event.title}$`, 'i') } 
-        });
+        const normalizedTitle = String(event.title).trim();
+        const existingEvent = await Event.findOne({ title: normalizedTitle })
+            .collation({ locale: 'en', strength: 1 });
         
         if (existingEvent) {
             return NextResponse.json(
