@@ -4,6 +4,8 @@ import BookEvent from "@/components/BookEvent";
 import {getSimilarEventsBySlug} from "@/lib/actions/event.actions";
 import {IEvent} from "@/database/event.model";
 import EventCard from "@/components/EventCard";
+import {cacheLife} from "next/cache";
+import { Suspense } from "react";
 
 //Last change
 
@@ -34,7 +36,9 @@ const EventTags = ({tags}: {tags: string[]}) => (
     </div>
 )
 
-const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => {
+const EventDetails = async ({params}: {params: Promise<{slug: string}>}) => {
+    'use cache'
+    cacheLife('hours')
     const {slug} = await params;
     let event;
     try {
@@ -104,7 +108,7 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
                         ): (
                             <p className="text-sm">Be the first to book your spot!</p>
                         )}
-                        <BookEvent eventId={event._id} />
+                        <BookEvent eventId={event._id} slug={slug} />
                     </div>
                 </aside>
             </div>
@@ -119,4 +123,13 @@ const EventDetailsPage = async ({params}: {params: Promise<{slug: string}>}) => 
         </section>
     )
 }
+
+const EventDetailsPage = ({params}: {params: Promise<{slug: string}>}) => {
+    return (
+        <Suspense fallback={<div>Loading event...</div>}>
+            <EventDetails params={params} />
+        </Suspense>
+    )
+}
+
 export default EventDetailsPage

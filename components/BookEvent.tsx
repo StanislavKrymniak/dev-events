@@ -1,8 +1,9 @@
 'use client'
 import {useState} from "react";
-import {submitBooking} from "@/lib/actions/event.actions";
+import {createBooking} from "@/lib/actions/booking.actions";
+import posthog from "posthog-js";
 
-const BookEvent = ({ eventId }: { eventId: string }) => {
+const BookEvent = ({ eventId, slug }: { eventId: string, slug: string }) => {
     const [email, setEmail] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -20,11 +21,12 @@ const BookEvent = ({ eventId }: { eventId: string }) => {
         setError("");
 
         try {
-            const response = await submitBooking(eventId, email);
-            if (response.success) {
+            const {success} = await createBooking({eventId, slug, email});
+            if (success) {
                 setSubmitted(true);
+                posthog.capture('event booked', {eventId, slug, email})
             } else {
-                setError(response.error || "Something went wrong.");
+                console.error("Error creating booking event", error);
             }
         } catch (err: unknown) {
             console.error(err);
