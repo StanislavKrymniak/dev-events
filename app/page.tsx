@@ -2,18 +2,18 @@ import ExploreBtn from "@/components/ExploreBtn";
 import EventCard from "@/components/EventCard";
 import {IEvent} from "@/database";
 import {cacheLife} from "next/cache";
-
+import {events} from "@/lib/constants";
 
 const Base_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const Page = async () => {
     'use cache'
     cacheLife('hours')
-    const response = await fetch(`${Base_URL}/api/events`);
+    /*const response = await fetch(`${Base_URL}/api/events`);
     if (!response.ok) {
         throw new Error(`Failed to fetch events (${response.status})`);
     }
-    const {events} = await response.json();
+    const {events} = await response.json();*/
     return (
         <section>
             <h1 className="text-center">The hub for Every Dev <br/> Event You Can&apos;t Miss</h1>
